@@ -54,33 +54,33 @@ public class MainStageController implements Initializable {
     @FXML
     Logic logic = Logic.getInstance();
     private Category currentCategory;
+    private Movie selected;
 
-    @FXML
-    private void playFromMainList(MouseEvent mouseEvent) throws IOException {
-        Movie selected = tableMovies.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            openMovie(selected);
-        }
+
+    public void playFromMainList(MouseEvent mouseEvent) throws IOException {
+        selected = tableMovies.getSelectionModel().getSelectedItem();
     }
 
-    @FXML
-    private void playFromCategoryList(MouseEvent mouseEvent) throws IOException {
-        Movie selected = moviesInCategoryList.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            openMovie(selected);
-        }
+
+    public void playFromCategoryList(MouseEvent mouseEvent) throws IOException {
+        selected = moviesInCategoryList.getSelectionModel().getSelectedItem();
     }
 
-    private void openMovie(Movie movie) throws IOException {
-        Desktop.getDesktop().open(new File(movie.getFilelink()));
-    }
-
-    public void deleteMovie(ActionEvent actionEvent) throws SQLException {
-        Movie selected = tableMovies.getSelectionModel().getSelectedItem();
+    public void openMovie(ActionEvent actionEvent) throws IOException {
         if (selected == null) {
             return;
         }
-        Logic.getInstance().deleteMovie(selected);
+        Desktop.getDesktop().open(new File(selected.getFilelink()));
+    }
+
+    public void deleteMovie(ActionEvent actionEvent) throws SQLException {
+        selected = tableMovies.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            return;
+        }
+        logic.deleteMovie(selected);
+        refreshTable();
+        selected = null;
     }
 
     public void onNewMovie(ActionEvent actionEvent) throws SQLException, IOException {
@@ -88,7 +88,7 @@ public class MainStageController implements Initializable {
     }
 
     public void onEditMovie(ActionEvent actionEvent) throws SQLException, IOException {
-        Movie selected = tableMovies.getSelectionModel().getSelectedItem();
+        selected = tableMovies.getSelectionModel().getSelectedItem();
         if (selected != null) {
             openMovieWindow(selected);
         }
@@ -125,10 +125,10 @@ public class MainStageController implements Initializable {
 
     private void readDataIntoList() throws SQLException {
         movieList = FXCollections.observableArrayList();
-        movieList.addAll(Logic.getInstance().getAllMovies());
+        movieList.addAll(logic.getAllMovies());
         tableMovies.setItems(movieList);
         categoryList = FXCollections.observableArrayList();
-        categoryList.addAll(Logic.getInstance().getAllCategories());
+        categoryList.addAll(logic.getAllCategories());
         tableCategories.setItems(categoryList);
         columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
         columnPersonalRating.setCellValueFactory(new PropertyValueFactory<>("personalRating"));

@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="900.0" prefHeight="639.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.moviecollection.gui.MainStageController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="600.0" minWidth="900.0" prefHeight="640.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dk.easv.moviecollection.gui.MainStageController">
 
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="839.0" spacing="20.0" BorderPane.alignment="CENTER">
@@ -99,16 +99,17 @@
                         </TableView>
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                             <children>
-                                <Button text="⬅️ Add to Category" />
+                                <Button prefHeight="25.0" prefWidth="150.0" text="⬅️ Add to Category" />
             
-                            <Button onAction="#onNewMovie" prefHeight="25.0" prefWidth="48.0" text="New">
+                            <Button onAction="#onNewMovie" prefHeight="25.0" prefWidth="59.0" text="New">
                                 <HBox.margin>
-                                    <Insets right="30.0" />
+                                    <Insets />
                                 </HBox.margin>
                             </Button>
-                                <Button onAction="#onEditMovie" prefHeight="25.0" prefWidth="50.0" text="Edit" />
-                                <Button onAction="#deleteMovie" text="Delete" />
-                                <Button text="Close" />
+                                <Button onAction="#onEditMovie" prefHeight="25.0" prefWidth="56.0" text="Edit" />
+                                <Button onAction="#deleteMovie" prefHeight="25.0" prefWidth="75.0" text="Delete" />
+                                <Button onAction="#openMovie" prefHeight="25.0" prefWidth="56.0" text="Play" />
+                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="64.0" text="Close" />
                             </children>
                             <padding>
                                 <Insets bottom="10.0" />
@@ -127,7 +128,7 @@
         </SplitPane>
     </center>
    <bottom>
-      <Label fx:id="errorLabel" alignment="BOTTOM_LEFT" prefHeight="18.0" prefWidth="807.0" textFill="#ee4b10" BorderPane.alignment="CENTER">
+      <Label fx:id="errorLabel" alignment="BOTTOM_LEFT" prefHeight="27.0" prefWidth="429.0" textFill="#ee4b10" BorderPane.alignment="CENTER_LEFT">
          <font>
             <Font size="18.0" />
          </font>
