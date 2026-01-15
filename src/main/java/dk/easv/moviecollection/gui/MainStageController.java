@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -140,20 +141,33 @@ public class MainStageController implements Initializable {
             errorLabel.setText("Please select a category and a movie to add");
             return;
         }
-        logic.addMovieToCategory(selected, currentCategory);
-        errorLabel.setText("");
-        refreshTable();
+
+        try {
+            logic.addMovieToCategory(selected, currentCategory);
+            updateMoviesInCategoryView(currentCategory);
+            errorLabel.setText("");
+        } catch (SQLException e) {
+            errorLabel.setText("Failed to add movie to category: " + e.getMessage());
+        }
     }
 
     public void deleteMovieFromCategory(ActionEvent actionEvent) throws SQLException {
-        Movie selectedMovie = moviesInCategoryList.getSelectionModel().getSelectedItem();
-        if (selectedMovie == null) {
-            errorLabel.setText("Please select a movie");
+        selected = moviesInCategoryList.getSelectionModel().getSelectedItem();
+        currentCategory = tableCategories.getSelectionModel().getSelectedItem();
+        if (selected == null || currentCategory == null) {
+            errorLabel.setText("Please select a category and a movie to remove");
             return;
         }
-        logic.deleteMovieFromCategory(selectedMovie, currentCategory);
-        updateMoviesInCategoryView(currentCategory);
+
+        try {
+            logic.deleteMovieFromCategory(selected, currentCategory);
+            updateMoviesInCategoryView(currentCategory);
+            errorLabel.setText("");
+        } catch (SQLException e) {
+            errorLabel.setText("Failed to remove movie from category: " + e.getMessage());
+        }
     }
+
 
     private void openMovieWindow(Movie movie) throws SQLException, IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("NewMovie.fxml"));
@@ -175,12 +189,20 @@ public class MainStageController implements Initializable {
         stage.showAndWait();
     }
 
-    private void updateMoviesInCategoryView(Category category) throws SQLException {
-        ObservableList<Movie> movies = FXCollections.observableArrayList(
-                logic.getAllMoviesByCategory(category.getId())
-        );
-        moviesInCategoryList.setItems(movies);
+    private void updateMoviesInCategoryView(Category category) {
+        try {
+            ObservableList<Movie> movies = FXCollections.observableArrayList(
+                    logic.getAllMoviesByCategory(category.getId())
+            );
+
+            moviesInCategoryList.setItems(movies);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            errorLabel.setText("Failed to load movies from database");
+        }
     }
+
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -193,11 +215,7 @@ public class MainStageController implements Initializable {
                         currentCategory = newC;
 
                         if (newC != null) {
-                            try {
-                                updateMoviesInCategoryView(newC);
-                            } catch (SQLException e) {
-                                throw new RuntimeException(e);
-                            }
+                            updateMoviesInCategoryView(newC);
                         } else {
                             moviesInCategoryList.setItems(FXCollections.observableArrayList());
                         }
@@ -236,5 +254,11 @@ public class MainStageController implements Initializable {
             }
             moviesInCategoryList.setItems(FXCollections.observableArrayList());
         }
+    }
+
+    @FXML
+    private void onCloseButtonClick(ActionEvent event) {
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.close();
     }
 }
