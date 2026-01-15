@@ -50,9 +50,8 @@
                         </TableView>
                         <HBox alignment="CENTER" spacing="10.0">
                             <children>
-                                <Button text="New" />
-                                <Button text="Edit" />
-                                <Button text="Delete" />
+                                <Button onAction="#onAddCategoryClick" text="New" />
+                                <Button onAction="#onDeleteCategory" text="Delete" />
                             </children>
                             <padding>
                                 <Insets bottom="10.0" />
@@ -71,7 +70,7 @@
                         <ListView fx:id="moviesInCategoryList" onMouseClicked="#playFromCategoryList" prefHeight="550.0" prefWidth="178.0" VBox.vgrow="ALWAYS" />
                         <HBox alignment="CENTER" spacing="10.0">
                             <children>
-                                <Button text="Delete" />
+                                <Button onAction="#deleteMovieFromCategory" text="Delete" />
                             </children>
                             <padding>
                                 <Insets bottom="10.0" />
@@ -99,7 +98,7 @@
                         </TableView>
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                             <children>
-                                <Button prefHeight="25.0" prefWidth="150.0" text="⬅️ Add to Category" />
+                                <Button onAction="#addMovieToCategory" prefHeight="25.0" prefWidth="150.0" text="⬅️ Add to Category" />
             
                             <Button onAction="#onNewMovie" prefHeight="25.0" prefWidth="59.0" text="New">
                                 <HBox.margin>

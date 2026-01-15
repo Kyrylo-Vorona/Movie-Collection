@@ -94,6 +94,67 @@ public class MainStageController implements Initializable {
         }
     }
 
+    @FXML
+    private void onAddCategoryClick() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Add New Category");
+        dialog.setHeaderText("Add a new category");
+        dialog.setContentText("Category name:");
+        dialog.showAndWait().ifPresent(name -> {
+            if (name.isBlank()) {
+                errorLabel.setText("Category name cannot be empty");
+                return;
+            }
+            boolean exists = categoryList.stream()
+                    .anyMatch(c -> c.getCategoryName().equalsIgnoreCase(name));
+
+            if (exists) {
+                errorLabel.setText("Category already exists");
+                return;
+            }
+            try {
+                logic.addCategory(name);
+                errorLabel.setText("");
+                refreshTable();
+
+            } catch (SQLException e) {
+                errorLabel.setText("Could not add category");
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void onDeleteCategory(ActionEvent actionEvent) throws SQLException {
+        currentCategory = tableCategories.getSelectionModel().getSelectedItem();
+        if (currentCategory == null) {
+            return;
+        }
+        logic.deleteCategory(currentCategory);
+        refreshTable();
+    }
+
+    public void addMovieToCategory(ActionEvent actionEvent) throws SQLException {
+        selected = tableMovies.getSelectionModel().getSelectedItem();
+        currentCategory = tableCategories.getSelectionModel().getSelectedItem();
+        if (selected == null || currentCategory == null) {
+            errorLabel.setText("Please select a category and a movie to add");
+            return;
+        }
+        logic.addMovieToCategory(selected, currentCategory);
+        errorLabel.setText("");
+        refreshTable();
+    }
+
+    public void deleteMovieFromCategory(ActionEvent actionEvent) throws SQLException {
+        Movie selectedMovie = moviesInCategoryList.getSelectionModel().getSelectedItem();
+        if (selectedMovie == null) {
+            errorLabel.setText("Please select a movie");
+            return;
+        }
+        logic.deleteMovieFromCategory(selectedMovie, currentCategory);
+        updateMoviesInCategoryView(currentCategory);
+    }
+
     private void openMovieWindow(Movie movie) throws SQLException, IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("NewMovie.fxml"));
         Parent root = loader.load();
@@ -114,14 +175,39 @@ public class MainStageController implements Initializable {
         stage.showAndWait();
     }
 
+    private void updateMoviesInCategoryView(Category category) throws SQLException {
+        ObservableList<Movie> movies = FXCollections.observableArrayList(
+                logic.getAllMoviesByCategory(category.getId())
+        );
+        moviesInCategoryList.setItems(movies);
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
             readDataIntoList();
+
+            tableCategories.getSelectionModel()
+                    .selectedItemProperty()
+                    .addListener((obs, oldC, newC) -> {
+                        currentCategory = newC;
+
+                        if (newC != null) {
+                            try {
+                                updateMoviesInCategoryView(newC);
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            moviesInCategoryList.setItems(FXCollections.observableArrayList());
+                        }
+                    });
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     private void readDataIntoList() throws SQLException {
         movieList = FXCollections.observableArrayList();

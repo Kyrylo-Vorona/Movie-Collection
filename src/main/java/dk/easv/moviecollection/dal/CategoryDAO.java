@@ -45,6 +45,8 @@ public class CategoryDAO {
         }
     }
 
+
+
     public void deleteCategory(Category category) throws SQLException {
         try (Connection con = cm.getConnection()) {
             con.setAutoCommit(false);
@@ -64,15 +66,4 @@ public class CategoryDAO {
         }
     }
 
-    public void editCategory(Category category) throws SQLException {
-        try (Connection con = cm.getConnection()) {
-            String edit = "UPDATE Category SET name = ? WHERE Id = ?";
-            PreparedStatement pstmt = con.prepareStatement(edit);
-            pstmt.setString(1, category.getCategoryName());
-            pstmt.setInt(2, category.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new SQLException("Could not edit category", e);
-        }
-    }
 }

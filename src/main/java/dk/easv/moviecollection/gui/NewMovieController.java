@@ -28,6 +28,13 @@ public class NewMovieController {
     private Movie movie;
     private Logic logic = Logic.getInstance();
 
+    private boolean isValidVideoFile(String path) {
+        if (path == null) return false;
+        String lower = path.toLowerCase();
+        return lower.endsWith(".mp4") || lower.endsWith(".mpeg4");
+    }
+
+
     public void setMovie(Movie movie) {
         this.movie = movie;
         if (movie != null) {
@@ -40,19 +47,30 @@ public class NewMovieController {
 
     @FXML
     private void onSave(ActionEvent actionEvent) {
-        if (nameTextField.getText().isEmpty() || imdbRatingTextField.getText().isEmpty() || personalRatingTextField.getText().isEmpty() || filelinkTextField.getText().isEmpty()) {
+        if (nameTextField.getText().isEmpty()
+                || imdbRatingTextField.getText().isEmpty()
+                || personalRatingTextField.getText().isEmpty()
+                || filelinkTextField.getText().isEmpty()) {
+
             errorLabel.setText("Please fill all the fields");
             return;
         }
 
-        if(Float.parseFloat(imdbRatingTextField.getText()) < 0.0 || Float.parseFloat(imdbRatingTextField.getText()) > 10.0) {
-            errorLabel.setText("Please enter a valid IMDb rating (0.0 - 10.0)");
+        if (!isValidVideoFile(filelinkTextField.getText())) {
+            errorLabel.setText("Only .mp4 or .mpeg4 files are allowed");
+            return;
         }
 
         try {
-            String name = nameTextField.getText();
             float imdb = Float.parseFloat(imdbRatingTextField.getText());
             int personal = Integer.parseInt(personalRatingTextField.getText());
+
+            if (imdb < 0.0 || imdb > 10.0) {
+                errorLabel.setText("Please enter a valid IMDb rating (0.0 - 10.0)");
+                return;
+            }
+
+            String name = nameTextField.getText();
             String filelink = filelinkTextField.getText();
 
             if (movie == null) {
@@ -62,18 +80,19 @@ public class NewMovieController {
                 movie.setImdbRating(imdb);
                 movie.setPersonalRating(personal);
                 movie.setFilelink(filelink);
-
                 logic.editMovie(movie);
             }
 
             Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
             stage.close();
+
         } catch (NumberFormatException e) {
             errorLabel.setText("Ratings must be numbers");
         } catch (SQLException e) {
             errorLabel.setText("Database error");
         }
     }
+
 
     @FXML
     private void onCancelButtonClick(ActionEvent event) {
@@ -84,14 +103,19 @@ public class NewMovieController {
     @FXML
     private void chooseMovieButtonClick(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choose movie file");
+
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter(
+                        "Video files (*.mp4, *.mpeg4)",
+                        "*.mp4", "*.mpeg4"
+                )
+        );
+
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
-            try {
-                filelinkTextField.setText(file.getAbsolutePath());
-            }
-            catch (Exception ex) {
-                System.out.println(ex.getMessage());
-            }
+            filelinkTextField.setText(file.getAbsolutePath());
         }
     }
+
 }

@@ -128,7 +128,7 @@ public class MovieDAO {
     public void deleteMovieFromCategory(Movie movie, Category category) throws SQLException {
         try (Connection con = cm.getConnection()) {
             String deleteSql =
-                    "DELETE FROM CatMovie (movie_id, category_id) VALUES (?, ?)";
+                    "DELETE FROM CatMovie WHERE movie_id = ? AND category_id = ?";
             PreparedStatement insert = con.prepareStatement(deleteSql);
             insert.setInt(1, movie.getId());
             insert.setInt(2, category.getId());
