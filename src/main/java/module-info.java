@@ -5,8 +5,9 @@ module dk.easv.moviecollection {
 
     requires java.sql;
     requires java.desktop;
-    requires java.naming; // ← ВАЖНО
+    requires java.naming;
     requires com.microsoft.sqlserver.jdbc;
+    requires javafx.base;
 
     opens dk.easv.moviecollection.gui to javafx.fxml;
     opens dk.easv.moviecollection.be to javafx.base;

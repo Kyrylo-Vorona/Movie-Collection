@@ -33,8 +33,6 @@ public class MainStageController implements Initializable {
     @FXML
     private TextField filter;
     @FXML
-    private ComboBox<Float> ratingComboBox;
-    @FXML
     private TableColumn<Movie, String> columnName;
     @FXML
     private TableColumn<Movie, Integer> columnPersonalRating;
@@ -43,12 +41,11 @@ public class MainStageController implements Initializable {
     @FXML
     private TableView<Movie> tableMovies;
     private ObservableList<Movie> movieList;
-    private ObservableList<Movie> filteredMovieList;
     @FXML
     private TableView<Category> tableCategories;
     @FXML
     private TableColumn<Category, String> columnCategory;
-    ObservableList<Category> categoryList;
+    private ObservableList<Category> categoryList;
     @FXML
     private ListView<Movie> moviesInCategoryList;
     private ObservableList<Movie> MoviesInCategoryList;
@@ -57,11 +54,9 @@ public class MainStageController implements Initializable {
     private Category currentCategory;
     private Movie selected;
 
-
     public void playFromMainList(MouseEvent mouseEvent) throws IOException {
         selected = tableMovies.getSelectionModel().getSelectedItem();
     }
-
 
     public void playFromCategoryList(MouseEvent mouseEvent) throws IOException {
         selected = moviesInCategoryList.getSelectionModel().getSelectedItem();
@@ -69,19 +64,23 @@ public class MainStageController implements Initializable {
 
     public void openMovie(ActionEvent actionEvent) throws IOException {
         if (selected == null) {
+            errorLabel.setText("No movie selected");
             return;
         }
         Desktop.getDesktop().open(new File(selected.getFilelink()));
+        errorLabel.setText("");
     }
 
     public void deleteMovie(ActionEvent actionEvent) throws SQLException {
         selected = tableMovies.getSelectionModel().getSelectedItem();
         if (selected == null) {
+            errorLabel.setText("No movie selected");
             return;
         }
         logic.deleteMovie(selected);
         refreshTable();
         selected = null;
+        errorLabel.setText("");
     }
 
     public void onNewMovie(ActionEvent actionEvent) throws SQLException, IOException {
@@ -128,10 +127,12 @@ public class MainStageController implements Initializable {
     public void onDeleteCategory(ActionEvent actionEvent) throws SQLException {
         currentCategory = tableCategories.getSelectionModel().getSelectedItem();
         if (currentCategory == null) {
+            errorLabel.setText("No Category selected");
             return;
         }
         logic.deleteCategory(currentCategory);
         refreshTable();
+        errorLabel.setText("");
     }
 
     public void addMovieToCategory(ActionEvent actionEvent) throws SQLException {
@@ -172,10 +173,8 @@ public class MainStageController implements Initializable {
     private void openMovieWindow(Movie movie) throws SQLException, IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("NewMovie.fxml"));
         Parent root = loader.load();
-
         NewMovieController controller = loader.getController();
         controller.setMovie(movie);
-
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.initModality(Modality.APPLICATION_MODAL);
@@ -183,10 +182,26 @@ public class MainStageController implements Initializable {
             try {
                 refreshTable();
             } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                errorLabel.setText("Database error. Please try again.");
             }
         });
         stage.showAndWait();
+    }
+
+    @FXML
+    private void onOpenFilter(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Filter.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Filter movies");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+            errorLabel.setText("Database error. Please try again.");
+        }
     }
 
     private void updateMoviesInCategoryView(Category category) {
@@ -208,7 +223,7 @@ public class MainStageController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         try {
             readDataIntoList();
-
+            showStartupWarning();
             tableCategories.getSelectionModel()
                     .selectedItemProperty()
                     .addListener((obs, oldC, newC) -> {
@@ -222,7 +237,7 @@ public class MainStageController implements Initializable {
                     });
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            errorLabel.setText("Database error. Please try again.");
         }
     }
 
@@ -261,4 +276,15 @@ public class MainStageController implements Initializable {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.close();
     }
+
+    private void showStartupWarning() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Reminder");
+        alert.setHeaderText("Movie cleanup reminder");
+        alert.setContentText(
+                "Remember to delete movies with a personal rating under 6 and that have not been opened for more than 2 years"
+        );
+        alert.showAndWait();
+    }
+
 }

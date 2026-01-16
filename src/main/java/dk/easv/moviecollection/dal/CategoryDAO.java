@@ -1,8 +1,6 @@
 package dk.easv.moviecollection.dal;
 
 import dk.easv.moviecollection.be.Category;
-import dk.easv.moviecollection.be.Movie;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +42,6 @@ public class CategoryDAO {
             throw new SQLException("Could not add category", e);
         }
     }
-
-
 
     public void deleteCategory(Category category) throws SQLException {
         try (Connection con = cm.getConnection()) {

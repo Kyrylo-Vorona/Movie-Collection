@@ -138,4 +138,66 @@ public class MovieDAO {
             throw new SQLException("Could not delete movie from selected category", e);
         }
     }
+
+    public List<Movie> getMoviesByFilters(String name, Float minImdbRating, List<Category> categories) throws SQLException {
+        List<Movie> movies = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT DISTINCT m.*  FROM Movie m LEFT JOIN CatMovie cm ON m.id = cm.movie_id WHERE 1=1");
+
+        if (name != null && !name.isBlank()) {
+            sql.append(" AND m.name LIKE ?");
+        }
+        if (minImdbRating != null) {
+            sql.append(" AND m.imdb_rating >= ?");
+        }
+        if (categories != null && !categories.isEmpty()) {
+            sql.append(" AND cm.category_id IN (");
+            sql.append("?,".repeat(categories.size()));
+            sql.setLength(sql.length() - 1);
+            sql.append(")");
+        }
+        try (Connection con = cm.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+            int index = 1;
+            if (name != null && !name.isBlank()) {
+                stmt.setString(index++, "%" + name + "%");
+            }
+            if (minImdbRating != null) {
+                stmt.setFloat(index++, minImdbRating);
+            }
+            if (categories != null && !categories.isEmpty()) {
+                for (Category c : categories) {
+                    stmt.setInt(index++, c.getId());
+                }
+            }
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                movies.add(new Movie(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getFloat("imdb_rating"),
+                        rs.getInt("personal_rating"),
+                        rs.getString("filelink"),
+                        rs.getDate("lastview").toLocalDate()
+                ));
+            }
+        }
+        return movies;
+    }
+
+    public List<Category> getCategoriesByMovie(int movieId) throws SQLException {
+        List<Category> categories = new ArrayList<>();
+        String sql = "SELECT c.id, c.name FROM Category c JOIN CatMovie cm ON c.id = cm.category_id WHERE cm.movie_id = ?";
+
+        try (Connection con = cm.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, movieId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                categories.add(new Category(rs.getInt("id"), rs.getString("name")));
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Could not get categories for movie with id " + movieId, e);
+        }
+        return categories;
+    }
 }

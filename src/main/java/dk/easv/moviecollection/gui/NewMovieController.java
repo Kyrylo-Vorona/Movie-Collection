@@ -34,7 +34,6 @@ public class NewMovieController {
         return lower.endsWith(".mp4") || lower.endsWith(".mpeg4");
     }
 
-
     public void setMovie(Movie movie) {
         this.movie = movie;
         if (movie != null) {
@@ -55,16 +54,13 @@ public class NewMovieController {
             errorLabel.setText("Please fill all the fields");
             return;
         }
-
         if (!isValidVideoFile(filelinkTextField.getText())) {
             errorLabel.setText("Only .mp4 or .mpeg4 files are allowed");
             return;
         }
-
         try {
             float imdb = Float.parseFloat(imdbRatingTextField.getText());
             int personal = Integer.parseInt(personalRatingTextField.getText());
-
             if (imdb < 0.0 || imdb > 10.0) {
                 errorLabel.setText("Please enter a valid IMDb rating (0.0 - 10.0)");
                 return;
@@ -82,7 +78,6 @@ public class NewMovieController {
                 movie.setFilelink(filelink);
                 logic.editMovie(movie);
             }
-
             Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
             stage.close();
 
@@ -92,7 +87,6 @@ public class NewMovieController {
             errorLabel.setText("Database error");
         }
     }
-
 
     @FXML
     private void onCancelButtonClick(ActionEvent event) {
@@ -104,18 +98,15 @@ public class NewMovieController {
     private void chooseMovieButtonClick(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose movie file");
-
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter(
                         "Video files (*.mp4, *.mpeg4)",
                         "*.mp4", "*.mpeg4"
                 )
         );
-
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
             filelinkTextField.setText(file.getAbsolutePath());
         }
     }
-
 }

@@ -2,9 +2,7 @@ package dk.easv.moviecollection.bll;
 
 import dk.easv.moviecollection.be.Category;
 import dk.easv.moviecollection.be.Movie;
-import dk.easv.moviecollection.dal.CategoryDAO;
 import dk.easv.moviecollection.dal.DALManager;
-
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
@@ -40,7 +38,6 @@ public class Logic {
         DALManager.getInstance().getCategoryDAO().addCategory(name);
     }
 
-
     public void deleteCategory(Category category) throws SQLException {
         DALManager.getInstance().getCategoryDAO().deleteCategory(category);
     }
@@ -59,5 +56,13 @@ public class Logic {
 
     public List<Movie> getAllMoviesByCategory(int categoryId) throws SQLException {
         return DALManager.getInstance().getMovieDAO().getMoviesByCategory(categoryId);
+    }
+
+    public List<Movie> getMoviesByFilters(String nameFilter, float minRating, List<Category> selectedCategories) throws SQLException {
+        return DALManager.getInstance().getMovieDAO().getMoviesByFilters(nameFilter, minRating, selectedCategories);
+    }
+
+    public List<Category> getCategoriesByMovie(int movieId) throws SQLException {
+        return DALManager.getInstance().getMovieDAO().getCategoriesByMovie(movieId);
     }
 }
